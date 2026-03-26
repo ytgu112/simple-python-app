@@ -8,7 +8,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_HUB_USER = 'yourdockerhub' // ЗАМЕНИ НА СВОЙ ЛОГИН
+        DOCKER_HUB_USER = 'ytgu1'
         DOCKER_IMAGE = "${DOCKER_HUB_USER}/python-app:${env.BUILD_NUMBER}"
         CONTAINER_NAME = "student-app-${params.ENVIRONMENT}"
     }
@@ -17,7 +17,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main', 
-                    url: 'https://github.com/yourusername/simple-python-app.git', // ЗАМЕНИ НА СВОЙ URL
+                    url: 'https://github.com/ytgu112/simple-python-app.git',
                     credentialsId: 'github-credentials'
             }
         }
