@@ -79,33 +79,18 @@ pipeline {
       }
     }
 
-  }
   environment {
     DOCKER_HUB_USER = 'ytgu1'
     DOCKER_IMAGE = "${DOCKER_HUB_USER}/python-app:${env.BUILD_NUMBER}"
     CONTAINER_NAME = "student-app-${params.ENVIRONMENT}"
   }
-  post {
-    always {
-      cleanWs()
-    }
-
-    success {
-      echo "Пайплайн успешно завершен для среды: ${params.ENVIRONMENT}"
-    }
-
-    failure {
-      echo 'Ошибка выполнения пайплайна!'
-    }
-
-  }
+  
   parameters {
     string(name: 'STUDENT_NAME', defaultValue: 'Иванов Иван', description: 'ФИО студента')
     choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Среда развертывания')
     booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Запускать тесты?')
   }
-
-post {
+  post {
         always {
             cleanWs() // Очистка рабочего пространства
         }
