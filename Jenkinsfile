@@ -112,7 +112,7 @@ post {
         success {
             // Уведомление об успехе
             emailext (
-                to: 'твой_email@example.com', 
+                to: 'tarelkat590@gmail.com', 
                 subject: "✅ Success: ${env.JOB_NAME} [Build #${env.BUILD_NUMBER}]",
                 body: """Пайплайн успешно завершен!
                          Проект: ${env.JOB_NAME}
@@ -125,7 +125,7 @@ post {
         failure {
             // Уведомление о провале (как на стр. 16 задания)
             emailext (
-                to: 'твой_email@example.com',
+                to: 'tarelkat590@gmail.com',
                 subject: "❌ Failed: ${env.JOB_NAME} [Build #${env.BUILD_NUMBER}]",
                 body: """ВНИМАНИЕ: Пайплайн упал!
                          Проверьте консольный вывод: ${env.BUILD_URL}
