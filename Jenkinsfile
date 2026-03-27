@@ -104,7 +104,7 @@ pipeline {
     choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Среда развертывания')
     booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Запускать тесты?')
   }
-}
+
 post {
         always {
             cleanWs() // Очистка рабочего пространства
@@ -134,3 +134,4 @@ post {
             )
         }
     }
+}
