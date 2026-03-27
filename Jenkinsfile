@@ -78,7 +78,7 @@ pipeline {
         sh "docker run -d --name ${CONTAINER_NAME} -p 80:5000 -e STUDENT_NAME='${params.STUDENT_NAME}' ${DOCKER_IMAGE}"
       }
     }
-
+}
   environment {
     DOCKER_HUB_USER = 'ytgu1'
     DOCKER_IMAGE = "${DOCKER_HUB_USER}/python-app:${env.BUILD_NUMBER}"
