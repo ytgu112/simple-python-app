@@ -105,3 +105,32 @@ pipeline {
     booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Запускать тесты?')
   }
 }
+post {
+        always {
+            cleanWs() // Очистка рабочего пространства
+        }
+        success {
+            // Уведомление об успехе
+            emailext (
+                to: 'твой_email@example.com', 
+                subject: "✅ Success: ${env.JOB_NAME} [Build #${env.BUILD_NUMBER}]",
+                body: """Пайплайн успешно завершен!
+                         Проект: ${env.JOB_NAME}
+                         Сборка: №${env.BUILD_NUMBER}
+                         Среда: ${params.ENVIRONMENT}
+                         Логи: ${env.BUILD_URL}""",
+                attachLog: true // Прикрепить лог сборки к письму
+            )
+        }
+        failure {
+            // Уведомление о провале (как на стр. 16 задания)
+            emailext (
+                to: 'твой_email@example.com',
+                subject: "❌ Failed: ${env.JOB_NAME} [Build #${env.BUILD_NUMBER}]",
+                body: """ВНИМАНИЕ: Пайплайн упал!
+                         Проверьте консольный вывод: ${env.BUILD_URL}
+                         Ошибка на этапе: ${env.STAGE_NAME}""",
+                attachLog: true
+            )
+        }
+    }
