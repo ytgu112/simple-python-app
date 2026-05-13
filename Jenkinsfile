@@ -14,20 +14,35 @@ pipeline {
     }
 
     stages {
-        stage('Preparation') {
+        stage('Diagnostics & Cleanup') {
             steps {
-                // Это принудительно удаляет старые битые файлы перед началом работы
-                cleanWs()
+                script {
+                    echo "--- Проверка свободного места ---"
+                    sh "df -h ."
+                    
+                    echo "--- Принудительная очистка рабочего пространства ---"
+                    // Удаляем всё, включая скрытые файлы .git
+                    sh "rm -rf ..?* .[!.]* *" 
+                }
             }
         }
 
         stage('Checkout') {
             steps {
-                git(
-                    branch: 'main', 
-                    url: 'https://github.com/ytgu112/simple-python-app.git', 
-                    credentialsId: 'github-credentials'
-                )
+                script {
+                    // Используем глубокую очистку перед клонированием
+                    checkout([$class: 'GitSCM', 
+                        branches: [[name: '*/main']], 
+                        extensions: [
+                            [$class: 'WipeWorkspace'], 
+                            [$class: 'CloneOption', depth: 1, noTags: false, shallow: true]
+                        ], 
+                        userRemoteConfigs: [[
+                            url: 'https://github.com/ytgu112/simple-python-app.git', 
+                            credentialsId: 'github-credentials'
+                        ]]
+                    ])
+                }
             }
         }
 
@@ -37,7 +52,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    python3 -m venv venv
+                    python3 -m venv venv || true
                     . venv/bin/activate
                     pip install -r requirements.txt
                     python -m unittest test_app.py
@@ -92,18 +107,14 @@ pipeline {
 
     post {
         always {
-            // Очистка после завершения любого результата
+            // Очистка, чтобы не оставлять мусор на диске после сборки
             cleanWs()
         }
         success {
             emailext (
                 to: 'tarelkat590@gmail.com', 
                 subject: "✅ Success: ${env.JOB_NAME} [Build #${env.BUILD_NUMBER}]",
-                body: """Пайплайн успешно завершен!
-                         Проект: ${env.JOB_NAME}
-                         Сборка: №${env.BUILD_NUMBER}
-                         Среда: ${params.ENVIRONMENT}
-                         Логи: ${env.BUILD_URL}""",
+                body: "Пайплайн успешно завершен! Сборка №${env.BUILD_NUMBER}. Логи: ${env.BUILD_URL}",
                 attachLog: true
             )
         }
@@ -111,9 +122,7 @@ pipeline {
             emailext (
                 to: 'tarelkat590@gmail.com',
                 subject: "❌ Failed: ${env.JOB_NAME} [Build #${env.BUILD_NUMBER}]",
-                body: """ВНИМАНИЕ: Пайплайн упал!
-                         Проверьте консольный вывод: ${env.BUILD_URL}
-                         Ошибка на этапе: ${env.STAGE_NAME}""",
+                body: "Ошибка в пайплайне! Проверьте логи: ${env.BUILD_URL}",
                 attachLog: true
             )
         }
